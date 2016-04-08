@@ -45,7 +45,7 @@ class CommonIndexer
         Time.parse(time_str)
       end
 
-      "#{time.strftime("%Y-%m-%d")}T00:00:01Z"
+      "#{time.strftime("%Y-%m-%d")}T00:00:00Z"
     rescue
       nil
     end
