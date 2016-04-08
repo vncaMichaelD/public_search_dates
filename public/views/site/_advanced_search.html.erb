@@ -1,0 +1,111 @@
+<%
+  values_for_operator = JSONModel(:boolean_query).schema['properties']['op']['enum'].collect {|v| [I18n.t("advanced_search.operator.#{v}", :default => v), v]}
+  default_field = nil
+
+  values_for_text = AdvancedSearch.fields_matching(:type => :text, :visibility => :public).map {|field|
+    if field.is_default
+      default_field = field.name
+    end
+    [I18n.t("advanced_search.text.#{field.name}"), field.name]
+  }.sort_by(&:first)
+
+  values_for_date = AdvancedSearch.fields_matching(:type => :date, :visibility => :public).map {|field|
+    if field.is_default
+      default_field = field.name
+    end
+    [I18n.t("advanced_search.date.#{field.name}"), field.name]
+  }.sort_by(&:first)
+%>
+<%= form_tag(url_for(:controller => :search, :action => :advanced_search), :method => :get, :class => "advanced-search") do %>
+  <%= hidden_field_tag "advanced", true %>
+  <div class="span12">
+    <div class="span2">
+      <%=select_tag "op0", options_for_select(values_for_operator, params["op0"]), :style => "visibility: hidden", :disabled => true %>
+    </div>
+    <div class="span6">
+      <%= text_field_tag "v0", params["v0"] %>
+    </div>
+    <div class="span3">
+      <%=select_tag "f0", options_for_select(values_for_text, params["f0"] || default_field) %>
+    </div>
+  </div>
+  <div class="span12">
+    <div class="span2">
+      <%=select_tag "op1", options_for_select(values_for_operator, params["op1"]) %>
+    </div>
+    <div class="span6">
+      <%= text_field_tag "v1", params["v1"] %>
+    </div>
+    <div class="span3">
+      <%=select_tag "f1", options_for_select(values_for_text, params["f1"] || default_field) %>
+    </div>
+  </div>
+  <div class="span12">
+    <div class="span2">
+      <%=select_tag "op2", options_for_select(values_for_operator, params["op2"]) %>
+    </div>
+    <div class="span6">
+      <%= text_field_tag "v2", params["v2"] %>
+    </div>
+    <div class="span3">
+      <%=select_tag "f2", options_for_select(values_for_text, params["f2"] || default_field) %>
+    </div>
+  </div>
+  <div class="span12">
+    <div style="display: none;">
+      <%=select_tag "op3", options_for_select(values_for_operator, params["op3"] || "AND") %>
+    </div>
+    <div class="span2" align="right">
+      Date Span:
+    </div>
+    <div class="span2">
+      <%= text_field_tag "v3", params["v3"], :placeholder => "YYYY-MM-DD" %>
+    </div>
+    <div style="display: none;">
+      <%=select_tag "f3", options_for_select(values_for_date, params["f3"] || "begin_date") %>
+    </div>
+	<div style="display: none;">
+      <%= text_field_tag "t3", "date" %>
+    </div>
+	<div style="display: none;">
+      <%= text_field_tag "dop3", "greater_than" %>
+    </div>
+    <div style="display: none;">
+      <%=select_tag "op4", options_for_select(values_for_operator, params["op4"] || "AND") %>
+    </div>
+    <div class="span1" align="right">
+      Through:
+    </div>
+    <div class="span2">
+      <%= text_field_tag "v4", params["v4"], :placeholder => "YYYY-MM-DD" %>
+    </div>
+	<div style="display: none;">
+      <%= text_field_tag "t4", "date" %>
+    </div>
+	<div style="display: none;">
+      <%= text_field_tag "dop4", "lesser_than" %>
+    </div>
+    <div style="display: none;">
+      <%=select_tag "f4", options_for_select(values_for_date, params["f4"] || "begin_date") %>
+    </div>
+  </div>
+  <div class="span11">
+    <hr />
+  </div>
+  <div class="span12">
+    <div class="span8">
+      <%= link_to I18n.t("advanced_search.index_switcher.hide"), { :advanced => nil }, {:class => "search-switcher-hide"} %>
+    </div>
+    <div class="span3">
+      <% if current_page?(root_url) %>
+        <button class="btn"><%= I18n.t("advanced_search.button_text") %></button>
+      <% else %>
+        <div class="btn-group">
+          <button class="btn btn-primary"><%= I18n.t("advanced_search.button_text") %></button>
+          <%= link_to I18n.t("advanced_search.reset"), {:controller => :search, :action => :search}, :class => "btn reset-advanced-search" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  <div class="clearfix"></div>
+<% end %>
